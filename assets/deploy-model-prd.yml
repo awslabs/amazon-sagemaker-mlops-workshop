@@ -1,0 +1,76 @@
+# aws cloudformation delete-stack --stack-name iris-model-prd
+# aws cloudformation create-stack --stack-name iris-model-prd --template-body file://deploy-model-prd.yml --parameters file://deploy-model-prd.json
+
+Description: Deploy a model at Sagemaker
+Parameters:
+  ImageRepoName:
+    Type: String
+    Description: Name of the model image ECR (Docker) repo
+  ImageTagName:
+    Type: String
+    Description: Name of the model image ECR (Docker) tag
+  ModelName:
+    Type: String
+    Description: Name of the model
+  TrainJobId:
+    Type: String
+    Description: Id of the Codepipeline + SagemakerJobs
+
+Resources:
+  EndpointConfig:
+    Type: "AWS::SageMaker::EndpointConfig"
+    Properties:
+      ProductionVariants:
+      - InitialInstanceCount: 2
+        InitialVariantWeight: 1.0
+        InstanceType: ml.c5.large
+        ModelName: !Sub mlops-${ModelName}-${TrainJobId}
+        VariantName: !Sub mlops-${ModelName}-prd-${TrainJobId}
+      EndpointConfigName: !Sub mlops-ec-${ModelName}-prd-${TrainJobId}
+      Tags:
+        - Key: Name
+          Value: !Sub mlops-ec-${ModelName}-prd-${TrainJobId}
+
+  Endpoint:
+    Type: "AWS::SageMaker::Endpoint"
+    Properties:
+      EndpointName: !Sub mlops-${ModelName}-prd-${TrainJobId}
+      EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
+      Tags:
+        - Key: Name
+          Value: !Sub mlops-${ModelName}-prd-${TrainJobId}
+    DependsOn: EndpointConfig
+
+  AutoScaling:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 10
+      MinCapacity: 2
+      ResourceId: !Sub endpoint/mlops-${ModelName}-prd-${TrainJobId}/variant/mlops-${ModelName}-prd-${TrainJobId}
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/MLOps
+      ScalableDimension: sagemaker:variant:DesiredInstanceCount
+      ServiceNamespace: sagemaker
+    DependsOn: Endpoint
+
+  AutoScalingPolicy:
+    Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+    Properties: 
+      PolicyName: SageMakerVariantInvocationsPerInstance
+      PolicyType: TargetTrackingScaling
+      ResourceId: !Sub endpoint/mlops-${ModelName}-prd-${TrainJobId}/variant/mlops-${ModelName}-prd-${TrainJobId}
+      ScalableDimension: sagemaker:variant:DesiredInstanceCount
+      
+      ServiceNamespace: sagemaker
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 750.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
+        PredefinedMetricSpecification:
+          PredefinedMetricType: SageMakerVariantInvocationsPerInstance
+    DependsOn: AutoScaling
+
+  
+
+  
+
+  

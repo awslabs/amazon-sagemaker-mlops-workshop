@@ -1,0 +1,257 @@
+Parameters:
+  NotebookInstanceSubNetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: "Select any subnet id"
+    AllowedPattern: ^subnet\-[a-zA-Z0-9]+$
+    ConstraintDescription: "You need to inform any subnetid"
+
+  NotebookInstanceSecGroupId:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+    Description: "Select the default security group"
+    AllowedPattern: ^sg\-[a-zA-Z0-9]+$
+    ConstraintDescription: "Select the default security group"
+
+  LoggedUser:
+    Type: String
+    Description: "Inform the userid that will operate this environment"
+    Default: awsstudent
+  
+Resources:
+  MLOpsScikitImageRepo:
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: scikit-base
+
+  MLOpsIrisModelRepo:
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: iris-model
+
+  MLOpsBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: !Sub mlops-${AWS::Region}-${AWS::AccountId}
+      Tags:
+        - Key: Name
+          Value: !Sub mlops-${AWS::Region}-${AWS::AccountId}
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+
+  MLOpsRepo:
+    Type: AWS::CodeCommit::Repository
+    Properties: 
+      RepositoryDescription: Repository for the ML models/images code
+      RepositoryName: mlops
+      
+  IAWorkshopPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: IAWorkshop
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: "*"
+          Resource: "*"
+      Users:
+        - !Ref LoggedUser
+
+  IAWorkshopNotebookInstance:
+    Type: "AWS::SageMaker::NotebookInstance"
+    Properties:
+      NotebookInstanceName: IAWorkshop
+      InstanceType: "ml.m4.xlarge"
+      SubnetId: !Ref NotebookInstanceSubNetId
+      SecurityGroupIds: !Ref NotebookInstanceSecGroupId
+      RoleArn: !GetAtt MLOps.Arn
+      LifecycleConfigName: !GetAtt IAWorkshopNotebookInstanceLifecycleConfig.NotebookInstanceLifecycleConfigName
+    DependsOn: 
+      - IAWorkshopPolicy
+      - IAWorkshopNotebookInstanceLifecycleConfig
+      - MLOps
+      - MLOpsBucket
+      - MLOpsRepo
+
+  IAWorkshopNotebookInstanceLifecycleConfig:
+    Type: "AWS::SageMaker::NotebookInstanceLifecycleConfig"
+    Properties:
+      NotebookInstanceLifecycleConfigName: !Sub ${AWS::StackName}-lifecycle-config
+      OnStart:
+        - Content: !Base64 |
+            #!/bin/bash
+
+            # This code was designed for a lab. You can reuse chunks of it but bear in mind
+            # that you need to prepare something different for production.
+
+            AVAIL_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+            REGION=$(echo $AVAIL_ZONE | sed 's/[a-z]\+$//')
+
+            echo "Configuring github for AWS credentials"
+            git config --global credential.helper '!aws codecommit credential-helper $@'
+            git config --global credential.UseHttpPath true
+            
+            cp ~/.gitconfig /home/ec2-user/ && chown ec2-user:ec2-user /home/ec2-user/.gitconfig
+
+            echo "Now let's prepare our code commit repo"
+            git clone https://git-codecommit.${REGION}.amazonaws.com/v1/repos/mlops /tmp/mlops-temp
+
+            echo "First the master branch"
+            cd /tmp/mlops-temp
+            printf "version: 0.2\nphases:\n  build:\n    commands:\n      - echo 'dummy'\n" > buildspec.yml
+            git add buildspec.yml
+            git commit -a -m ' - repo init'
+            git push
+
+            echo "Then the scikit image base branch"
+            git checkout -b scikit_base
+            git push --set-upstream origin scikit_base
+            
+            echo "Then our iris model branch"
+            git checkout -b iris_model
+            git push --set-upstream origin iris_model
+
+            cd ~/
+            rm -rf /tmp/mlops-temp
+
+            echo "Downloading exercises..."
+            git clone https://github.com/samir-souza/ai-workshop.git /home/ec2-user/SageMaker/ai-workshop
+            git clone https://github.com/samir-souza/mlops-workshop.git /home/ec2-user/SageMaker/mlops-workshop
+
+            echo "Now let's clone both branches we just created"
+            mkdir -p /home/ec2-user/SageMaker/mlops-workshop-images
+            git clone --single-branch -b scikit_base https://git-codecommit.${REGION}.amazonaws.com/v1/repos/mlops  /home/ec2-user/SageMaker/mlops-workshop-images/scikit_base
+            git clone --single-branch -b iris_model https://git-codecommit.${REGION}.amazonaws.com/v1/repos/mlops  /home/ec2-user/SageMaker/mlops-workshop-images/iris_model
+
+            echo "Finally, let's clone and build an image for testing codebuild locally"
+            git clone https://github.com/aws/aws-codebuild-docker-images.git /tmp/aws-codebuild
+            cd /tmp/aws-codebuild/ubuntu/docker/17.09.0
+            docker build -f Dockerfile -t aws/codebuild/docker:17.09.0 .
+            docker pull amazon/aws-codebuild-local:latest --disable-content-trust=false
+            cd ~/
+            rm -rf /tmp/aws-codebuild
+
+            chown ec2-user:ec2-user -R /home/ec2-user/SageMaker/
+
+            cd /home/ec2-user/SageMaker/mlops-workshop
+
+            parameters="ParameterKey=RepoBranchName,ParameterValue=%s"
+            parameters="$parameters ParameterKey=ImageRepoName,ParameterValue=%s"
+            parameters="$parameters ParameterKey=ImageTagName,ParameterValue=%s"
+
+            echo "Here, we'll create the scikit image pipeline"
+
+            aws cloudformation create-stack --stack-name scikit-base \
+              --template-body file://assets/build-image.yml \
+              --parameters $(printf "$parameters" "scikit_base" "scikit-base" "latest" )
+
+            echo "Finally we'll create iris-model pipeline"
+            aws cloudformation create-stack --stack-name iris-model \
+              --template-body file://assets/build-image.yml \
+              --parameters $(printf "$parameters" "iris_model" "iris-model" "latest" )
+
+            parameters="$parameters ParameterKey=ModelName,ParameterValue=%s"
+            parameters="$parameters ParameterKey=DatasetKeyPath,ParameterValue=%s"
+            aws cloudformation create-stack --stack-name iris-train-pipeline \
+              --template-body file://assets/train-model-pipeline.yml \
+              --parameters $(printf "$parameters" "iris_model" "iris-model" "latest" "iris-model" "training_jobs/iris_model" )
+            
+            echo "Done! Let's do some stuff with this env"
+    DependsOn: 
+      - IAWorkshopPolicy
+
+  MLOpsCodeBuild:
+    Type: "AWS::IAM::Role"
+    Properties: 
+      RoleName: MLOpsCodeBuild
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "codebuild.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies: 
+        - 
+          PolicyName: "Admin"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - 
+                Effect: "Allow"
+                Action: "*"
+                Resource: "*"
+
+    DependsOn: IAWorkshopPolicy
+  MLOps:
+    Type: "AWS::IAM::Role"
+    Properties: 
+      RoleName: MLOps
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "sagemaker.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "cloudformation.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "codepipeline.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "codebuild.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "events.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies: 
+        - 
+          PolicyName: "Admin"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - 
+                Effect: "Allow"
+                Action: "*"
+                Resource: "*"
+    DependsOn: IAWorkshopPolicy
+
+Outputs:
+  IAWorkshopNotebookInstanceId:
+    Value: !Ref IAWorkshopNotebookInstance
+  IAWorkshopNotebookInstanceLifecycleConfigId:
+    Value: !Ref IAWorkshopNotebookInstanceLifecycleConfig
+
