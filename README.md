@@ -1,4 +1,4 @@
-# Amazon Sagemaker Mlops Workshop
+# Amazon Sagemaker MLops Workshop
 Machine Learning Ops Workshop with SageMaker: lab guides and materials.
 
 ## Introduction
