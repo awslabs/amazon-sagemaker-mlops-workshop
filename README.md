@@ -126,18 +126,9 @@ US East (N. Virginia) | [![Launch MLOps solution in us-east-1](imgs/cloudformati
 ----
 # Cleaning
 
-In order to delete all the assets, created by this workshop, delete the following cloudformation stacks.
-![Cloudformation Stacks](imgs/cloudformationStacks.png)
+Just delete the stack you created. If you named **AIWorkshop**, find this stack using the CloudFormation console and delete it.
 
-Just follow the reverse order
-1. AIWorkshop
-2. scikit-base
-3. iris-model
-4. iris-train-pipeline
-5. iris-train-pipeline-deploy-dev
-6. iris-train-pipeline-deploy-prd
-
-Also, delete the S3 bucket created by the first Cloudformation: **mlops-\<region>-\<accountid>**
+**WARNING**: All the assets will be deleted, including the S3 Bucket and the ECR Docker images created during the execution of this workshop.
 
 ----
 
