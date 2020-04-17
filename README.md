@@ -124,11 +124,10 @@ US East (N. Virginia) | [![Launch MLOps solution in us-east-1](imgs/cloudformati
 ----
 # Cleaning
 
-First delete the deployment stacks:
+First delete the folowing stacks:
  - mlops-deploy-iris-model-dev
  - mlops-deploy-iris-model-prd
  - mlops-training-iris-model-job
-
 Then delete the stack you created. If you named **AIWorkshop**, find this stack using the CloudFormation console and delete it.
 
 **WARNING**: All the assets will be deleted, including the S3 Bucket and the ECR Docker images created during the execution of this workshop.
