@@ -134,7 +134,21 @@ Then delete the stack you created. If you named **AIWorkshop**, find this stack 
 **WARNING**: All the assets will be deleted, including the S3 Bucket and the ECR Docker images created during the execution of this workshop.
 
 ----
+# Suggested agenda
+ - Introduction (1:00)
+   - MLStack@AWS, SageMaker concepts/features, MLOps, etc.
+ - WarmUp - Part 1 (0:30)
+ - Break (0:15)
+ - WarmUp - Parts 2,3,4 (0:50)
+ - Container Image (0:40)
+ - Lunch (1:00)
+ - MLOps Pipeline: Train + Deployment (0:30)
+ - Stress tests + Auto Scaling (0:30)
+ - Wrap up + discussion (0:20)
 
+Total: 5:45
+ 
+----
 ## License Summary
 This sample code is made available under a modified MIT license. See the LICENSE file.
 
