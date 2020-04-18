@@ -5,7 +5,7 @@ Machine Learning Ops Workshop with SageMaker: lab guides and materials.
 
 <img align="left" src="imgs/eyecatch_sagemaker.png">
 
-Data Scientists and ML developers need more than a Jupyter notebook to create a ML model, test it, put into production and integrate it with a portal and/or a basic web/mobile application in a reliable and flexible way.
+Data Scientists and ML developers need more than a Jupyter notebook to create a ML model, to test it, to put it into production and to integrate it with a portal and/or a basic web/mobile application in a reliable and flexible way.
 
 </br></br></br></br>
 
@@ -14,9 +14,9 @@ There are two basic questions that you should consider when you start developing
 1. How long would it take your organization to deploy a change that involves a single line of code?
 2. Can you do this on a repeatable, reliable basis?
 
-So, if you're not happy with the answers, MLOps is a concept that can help you: a) to create or improve the organization culture for CI/CD; b) to create an automated infrastructure that will support your processes.
+So, if you're not happy with the answers you have, MLOps is a concept that can help you: a) to create or improve the organization culture for CI/CD applied to ML; b) to create an automated infrastructure that will support your processes.
 
-[Amazon Sagemaker](https://aws.amazon.com/sagemaker/), a service that supports the whole pipeline of a ML Model development, is the heart of this solution. Around it, you can add several different services as the AWS Code* for creating an automated pipeline, building your docker images, train/test/deploy/integrate your models, etc.
+[Amazon Sagemaker](https://aws.amazon.com/sagemaker/), a service that supports the whole pipeline of a ML Model development lifecycle, is the heart of this solution. Around it, you can add several different services as the AWS Code* for creating an automated pipeline, building your docker images, train/test/deploy/integrate your models, etc.
 
 Here you can find more information about [DevOps](https://aws.amazon.com/devops/) at AWS ([What is DevOps](https://aws.amazon.com/pt/devops/what-is-devops/)).
 
