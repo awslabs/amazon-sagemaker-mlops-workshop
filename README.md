@@ -1,11 +1,11 @@
 # Amazon Sagemaker MLops Workshop
-Machine Learning Ops Workshop with SageMaker: lab guides and materials.
+Machine Learning Ops Workshop with SageMaker and CodePipeline: lab guides and materials.
 
 ## Introduction
 
 <img align="left" src="imgs/eyecatch_sagemaker.png">
 
-Data Scientists and ML developers need more than a Jupyter notebook to create a ML model, to test it, to put it into production and to integrate it with a portal and/or a basic web/mobile application in a reliable and flexible way.
+Data Scientists and ML developers need more than a Jupyter notebook to create a ML model, to test it, to put it into production and to integrate it with a portal and/or a basic web/mobile application, in a reliable and flexible way. 
 
 </br></br></br></br>
 
@@ -16,9 +16,22 @@ There are two basic questions that you should consider when you start developing
 
 So, if you're not happy with the answers you have, MLOps is a concept that can help you: a) to create or improve the organization culture for CI/CD applied to ML; b) to create an automated infrastructure that will support your processes.
 
+In this workshop you'll see how to create/operate an automated ML pipeline using a traditional CI/CD tool, called [CodePipeline](https://aws.amazon.com/codepipeline/), to orchestrate the ML workflow. During the exercises you'll see how to create a Docker container from scratch with your own algorithm, start a training/deployment job by just copying a .zip file to an S3 repo, run A/B tests and more. This is a reference architecture that can be used as an inspiration to create your own solution.
+
 [Amazon Sagemaker](https://aws.amazon.com/sagemaker/), a service that supports the whole pipeline of a ML Model development lifecycle, is the heart of this solution. Around it, you can add several different services as the AWS Code* for creating an automated pipeline, building your docker images, train/test/deploy/integrate your models, etc.
 
 Here you can find more information about [DevOps](https://aws.amazon.com/devops/) at AWS ([What is DevOps](https://aws.amazon.com/pt/devops/what-is-devops/)).
+
+#### Some important references
+
+Another AWS service that can used for this purpose is [Step Functions](
+https://aws-step-functions-data-science-sdk.readthedocs.io/en/latest/readmelink.html#getting-started-with-sample-jupyter-notebooks). In this link, you'll also find the documentation of the python library that can be executed directly from your Jupyter notebook.
+
+[Apache AirFlow](https://airflow.apache.org/) is a poweful Open Source tool that can also be integrated with SageMaker. Curious? Just take a look on the [SageMaker Operators for AirFlow](https://sagemaker.readthedocs.io/en/stable/using_workflow.html).
+
+Ah, you have a Kubernetes cluster and want to integrate SageMaker to that and manage the ML Pipeline from the cluster. No problem, take a look on the [SageMaker Operators for Kubernetes](https://aws.amazon.com/blogs/machine-learning/introducing-amazon-sagemaker-operators-for-kubernetes/).
+
+Anyway, there are lots of workflow managers that can be perfectly integrated with SageMaker to do the same job! Pick yours and use your creativity to create your own MLOps plaform!
 
 ## Pre-Requisites
 
