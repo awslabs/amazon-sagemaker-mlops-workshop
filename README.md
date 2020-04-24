@@ -1,4 +1,4 @@
-# Amazon Sagemaker MLops Workshop
+# Amazon Sagemaker MLops "with classic CI/CD tools" Workshop
 Machine Learning Ops Workshop with SageMaker and CodePipeline: lab guides and materials.
 
 ## Introduction
