@@ -60,15 +60,15 @@ In order to complete this workshop you'll need an AWS Account with access to the
 In this workshop you'll implement and experiment a basic MLOps process, supported by an automated infrastructure for training/testing/deploying/integrating ML Models. It is comprised into four parts:
 
 1. You'll start with a **WarmUp**, for reviewing the basic features of Amazon Sagemaker;
-2. Then you will create a **Customized Docker Image** with your own algorithm. We'll use scikit-learn as our library;
-3. After that, you will train the models, deploy them into a **DEV** environment, approve and deploy them into a **PRD** environment with **High Availability** and **Elasticity**;
+2. Then you will **optionally** create a **Customized Docker Image** with your own algorithm. We'll use scikit-learn as our library;
+3. After that, you will train the model (using the buil-in XGBoost or the a custom container if you ran the step 2), deploy them into a **DEV** environment, approve and deploy them into a **PRD** environment with **High Availability** and **Elasticity**;
 4. Finally, you'll run a Stress test on your production endpoint to test the elasticity and simulate a situation where the number of requests on your ML model can vary.
 
 Parts 2 and 3 are supported by automated pipelines that reads the assets produced by the ML devoloper and execute/control the whole process.
 
 
 ### Architecture
-For part 2 the following architecture will support the process. In part 2 you'll create a Docker image that contains your own implementation of a RandomForest classifier, using python 3.7 and scikit-learn.
+For part 2 the following architecture will support the process. In part 2 you'll create a Docker image that contains your own implementation of a RandomForest classifier, using python 3.7 and scikit-learn. Remember that if you are happy with the [built-in XGboost](https://docs.aws.amazon.com/sagemaker/latest/dg/xgboost.html) you can skip this part.
 
 ![Build Docker Image](imgs/MLOps_BuildImage.jpg)
 
