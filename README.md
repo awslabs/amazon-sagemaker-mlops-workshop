@@ -27,11 +27,11 @@ Here you can find more information about [DevOps](https://aws.amazon.com/devops/
 Another AWS service that can used for this purpose is [Step Functions](
 https://aws-step-functions-data-science-sdk.readthedocs.io/en/latest/readmelink.html#getting-started-with-sample-jupyter-notebooks). In this link, you'll also find the documentation of the python library that can be executed directly from your Jupyter notebook.
 
-[Apache AirFlow](https://airflow.apache.org/) is a poweful Open Source tool that can also be integrated with SageMaker. Curious? Just take a look on the [SageMaker Operators for AirFlow](https://sagemaker.readthedocs.io/en/stable/using_workflow.html).
+[Apache AirFlow](https://airflow.apache.org/) is a powerful Open Source tool that can also be integrated with SageMaker. Curious? Just take a look on the [SageMaker Operators for AirFlow](https://sagemaker.readthedocs.io/en/stable/using_workflow.html).
 
 Ah, you have a Kubernetes cluster and want to integrate SageMaker to that and manage the ML Pipeline from the cluster. No problem, take a look on the [SageMaker Operators for Kubernetes](https://aws.amazon.com/blogs/machine-learning/introducing-amazon-sagemaker-operators-for-kubernetes/).
 
-Anyway, there are lots of workflow managers that can be perfectly integrated with SageMaker to do the same job! Pick yours and use your creativity to create your own MLOps plaform!
+Anyway, there are lots of workflow managers that can be perfectly integrated with SageMaker to do the same job! Pick yours and use your creativity to create your own MLOps platform!
 
 ## Pre-Requisites
 
@@ -61,10 +61,10 @@ In this workshop you'll implement and experiment a basic MLOps process, supporte
 
 1. You'll start with a **WarmUp**, for reviewing the basic features of Amazon Sagemaker;
 2. Then you will **optionally** create a **Customized Docker Image** with your own algorithm. We'll use scikit-learn as our library;
-3. After that, you will train the model (using the buil-in XGBoost or the a custom container if you ran the step 2), deploy them into a **DEV** environment, approve and deploy them into a **PRD** environment with **High Availability** and **Elasticity**;
+3. After that, you will train the model (using the built-in XGBoost or a custom container if you ran the step 2), deploy them into a **DEV** environment, approve and deploy them into a **PRD** environment with **High Availability** and **Elasticity**;
 4. Finally, you'll run a Stress test on your production endpoint to test the elasticity and simulate a situation where the number of requests on your ML model can vary.
 
-Parts 2 and 3 are supported by automated pipelines that reads the assets produced by the ML devoloper and execute/control the whole process.
+Parts 2 and 3 are supported by automated pipelines that reads the assets produced by the ML developer and execute/control the whole process.
 
 
 ### Architecture
@@ -79,7 +79,7 @@ For part 2 the following architecture will support the process. In part 2 you'll
 
 For part 3 you'll make use of the following structure for training the model, testing it, deploying it in two different environments: DEV - QA/Development (simple endpoint) and PRD - Production (HA/Elastic endpoint).
 
-**Altough there is an ETL part in the Architecture, we'll not use Glue or other ETL tool in this workshop. The idea is just to show you how simple it is to integrate this Architecture with your Data Lake and/or Legacy databases using an ETL process**
+**Although there is an ETL part in the Architecture, we'll not use Glue or other ETL tool in this workshop. The idea is just to show you how simple it is to integrate this Architecture with your Data Lake and/or Legacy databases using an ETL process**
 ![Train Deploy and Test a ML Model](imgs/MLOps_Train_Deploy_TestModel.jpg)
 
 
@@ -105,13 +105,13 @@ CRISP-DM stands for “Cross Industry Standard Process – Data Mining” and is
 
 There are 6 phases to CRISP:
    - **Business understanding**: Don’t dive into the data immediately! First take some time to understand: Business objectives, Surrounding context, ML problem category.
-   - **Data understanding**: Exploring the data gives us insights about tha paths we should follow.
+   - **Data understanding**: Exploring the data gives us insights about the paths we should follow.
    - **Data preparation**: Data cleaning, normalization, feature selection, feature engineering, etc.
    - **Modeling**: Select the algorithms, train your model, optimize it as necessary.
    - **Evaluation**: Test your model with different samples, with real data if possible and decide if the model will fit the requirements of your business case.
    - **Deployment**: Deploy into production, integrate it, do A/B tests, integration tests, etc.
 
-Notice the arrows in the diagram though. CRISP frames data science as a cyclical endeavor - more insights leads to better business understanding, which kicks off the process again.
+Notice the arrows in the diagram though. CRISP frames data science as a cyclical endeavour - more insights lead to better business understanding, which kicks off the process again.
 
 ## Instructions
 
@@ -125,10 +125,10 @@ US East (N. Virginia) | [![Launch MLOps solution in us-east-1](imgs/cloudformati
 
 1. Then open the Jupyter Notebook instance in Sagemaker and start doing the exercises:
 
-    1. [Warmup](lab/00_Warmup/01_BasicModel_Part1_TrainDeployTest.ipynb): This is a basic exercise for exploring the Sagemaker features like: training, deploying and optmizing a model. If you already have experience with Sagemaker, you can skip this exercise.
+    1. [Warmup](lab/00_Warmup/01_BasicModel_Part1_TrainDeployTest.ipynb): This is a basic exercise for exploring the Sagemaker features like: training, deploying and optimizing a model. If you already have experience with Sagemaker, you can skip this exercise.
     2. [Container Image with a Scikit Classifier](lab/01_CreateAlgorithmContainer/01_Creating%20a%20Classifier%20Container.ipynb 	): In this exercise we'll create a Docker Image that encapsulates all the code required for training and deploying a RandomForest classifier. If you don't want to create a custom container, skip this section.
-        1. [Test the models locally](lab/01_CreateAlgorithmContainer/02_Testing%20our%20local%20model%20server.ipynb): This is part of the exercise #3. You can use this jupyter to test your local WebService, to simulate how Sagemaker will call it when you ask it to create an Endpoint or launch a Batch job for you.
-        2. [Test the container using a SageMaker Estimator](lab/01_CreateAlgorithmContainer/03_Testing%20the%20container%20using%20SageMaker%20Estimator.ipynb): This optional exercise can be use for understanding how SageMaker Estimators can encapsulate your container and abstract the complexity of the training/tuning/deploying processes.
+        1. [Test the models locally](lab/01_CreateAlgorithmContainer/02_Testing%20our%20local%20model%20server.ipynb): This is part of the exercise #3. You can use this Jupyter to test your local WebService, to simulate how Sagemaker will call it when you ask it to create an Endpoint or launch a Batch job for you.
+        2. [Test the container using a SageMaker Estimator](lab/01_CreateAlgorithmContainer/03_Testing%20the%20container%20using%20SageMaker%20Estimator.ipynb): This optional exercise can be used for understanding how SageMaker Estimators can encapsulate your container and abstract the complexity of the training/tuning/deploying processes.
     4. [Train your models](lab/02_TrainYourModel/01_Training%20our%20custom%20model.ipynb): In this exercise you'll use the training pipeline. You'll see how to train or retrain a particular model by just copying a zip file with the required assets to a given S3 bucket.
         1. [Check Training progress and test](lab/02_TrainYourModel/02_Check%20Progress%20and%20Test%20the%20endpoint.ipynb): Here you can monitor the training process, approve the production deployment and test your endpoints.
     5. [Stress Test](lab/03_TestingHacking/01_Stress%20Test.ipynb): Here you can execute stress tests to see how well your model is performing.
@@ -137,7 +137,7 @@ US East (N. Virginia) | [![Launch MLOps solution in us-east-1](imgs/cloudformati
 ----
 # Cleaning
 
-First delete the folowing stacks:
+First delete the following stacks:
  - mlops-deploy-iris-model-dev
  - mlops-deploy-iris-model-prd
  - mlops-training-iris-model-job
